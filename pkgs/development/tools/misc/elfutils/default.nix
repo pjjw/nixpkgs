@@ -1,34 +1,40 @@
-{ lib, stdenv, fetchurl, m4, zlib, bzip2, bison, flex, gettext, xz, setupDebugInfoDirs, argp-standalone }:
+{ lib, stdenv, fetchurl, pkgconfig, autoreconfHook, musl-fts, obstack, m4, zlib, bzip2, bison, flex, gettext, xz, setupDebugInfoDirs, argp-standalone }:
 
 # TODO: Look at the hardcoded paths to kernel, modules etc.
 stdenv.mkDerivation rec {
   pname = "elfutils";
-  version = "0.180";
+  version = "0.182";
 
   src = fetchurl {
     url = "https://sourceware.org/elfutils/ftp/${version}/${pname}-${version}.tar.bz2";
-    sha256 = "17an1f67bfzxin482nbcxdl5qvywm27i9kypjyx8ilarbkivc9xq";
+    sha256 = "7MQGkU7fM18Lf8CE6+bEYMTW1Rdb/dZojBx42RRriFg=";
   };
 
-  patches = [ ./debug-info-from-env.patch ];
+  patches = [ ./debug-info-from-env.patch ]
+    ++ lib.optional stdenv.hostPlatform.isMusl ./musl-compat.patch;
 
   hardeningDisable = [ "format" ];
 
   # We need bzip2 in NativeInputs because otherwise we can't unpack the src,
   # as the host-bzip2 will be in the path.
-  nativeBuildInputs = [ m4 bison flex gettext bzip2 ];
+  nativeBuildInputs = [ m4 bison flex gettext bzip2 ]
+    ++ lib.optional stdenv.hostPlatform.isMusl 
+        [ pkgconfig autoreconfHook ] ;
   buildInputs = [ zlib bzip2 xz ]
-    ++ lib.optional stdenv.hostPlatform.isMusl argp-standalone;
+    ++ lib.optional stdenv.hostPlatform.isMusl 
+        [ argp-standalone musl-fts obstack ];
 
   propagatedNativeBuildInputs = [ setupDebugInfoDirs ];
 
   preConfigure = lib.optionalString stdenv.hostPlatform.isMusl ''
     NIX_CFLAGS_COMPILE+=" -fgnu89-inline"
+    NIX_CFLAGS_COMPILE+=" -Wno-null-dereference"
   '';
 
   configureFlags =
     [ "--program-prefix=eu-" # prevent collisions with binutils
       "--enable-deterministic-archives"
+      "--disable-libdebuginfod"
       "--disable-debuginfod"
     ];
 

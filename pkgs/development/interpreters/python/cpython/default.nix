@@ -127,6 +127,12 @@ let
       else parsed.cpu.name;
     multiarch =
       if isDarwin then "darwin"
+      else if stdenv.hostPlatform.libc == "musl" then
+        # python's build doesn't differentiate between musl and glibc in its
+        # abi detection, our wrapper should match.
+        let
+          fakeAbiName = replaceStrings [ "musl" ] [ "gnu" ] parsed.abi.name;
+        in "${multiarchCpu}-${parsed.kernel.name}-${fakeAbiName}"
       else "${multiarchCpu}-${parsed.kernel.name}-${parsed.abi.name}";
 
     abiFlags = optionalString (isPy36 || isPy37) "m";

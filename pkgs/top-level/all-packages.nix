@@ -19369,6 +19369,8 @@ in
   musl = callPackage ../os-specific/linux/musl { };
 
   musl-fts = callPackage ../os-specific/linux/musl-fts { };
+  musl-obstack = callPackage ../os-specific/linux/musl-obstack { };
+  obstack = if stdenv.hostPlatform.isMusl then musl-obstack else null;
 
   nushell = callPackage ../shells/nushell {
     inherit (darwin.apple_sdk.frameworks) AppKit Security;

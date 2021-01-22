@@ -105,6 +105,7 @@ stdenv.mkDerivation (rec {
   # With non-standard storeDir: https://github.com/NixOS/nix/issues/512
   doCheck = stdenv.hostPlatform == stdenv.buildPlatform
     && (stdenv.hostPlatform.libc == "glibc" || stdenv.hostPlatform.isMusl)
+    && !(stdenv.hostPlatform.isAarch64)
     && builtins.storeDir == "/nix/store";
 
   # Prevents attempts of running 'help2man' on cross-built binaries.

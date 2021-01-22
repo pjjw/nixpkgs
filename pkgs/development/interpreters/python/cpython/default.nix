@@ -125,15 +125,15 @@ let
         if parsed.cpu.significantByte.name == "littleEndian" then "arm" else "armeb"
       else if isx86_32 then "i386"
       else parsed.cpu.name;
+    pythonAbiName =
+      # python's build doesn't differentiate between musl and glibc in its
+      # abi detection, our wrapper should match.
+      if stdenv.hostPlatform.isMusl then
+        replaceStrings [ "musl" ] [ "gnu" ] parsed.abi.name
+        else parsed.abi.name;
     multiarch =
       if isDarwin then "darwin"
-      else if stdenv.hostPlatform.libc == "musl" then
-        # python's build doesn't differentiate between musl and glibc in its
-        # abi detection, our wrapper should match.
-        let
-          fakeAbiName = replaceStrings [ "musl" ] [ "gnu" ] parsed.abi.name;
-        in "${multiarchCpu}-${parsed.kernel.name}-${fakeAbiName}"
-      else "${multiarchCpu}-${parsed.kernel.name}-${parsed.abi.name}";
+      else "${multiarchCpu}-${parsed.kernel.name}-${pythonAbiName}";
 
     abiFlags = optionalString (isPy36 || isPy37) "m";
 

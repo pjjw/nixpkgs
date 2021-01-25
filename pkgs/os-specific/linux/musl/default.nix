@@ -68,6 +68,10 @@ stdenv.mkDerivation rec {
       url = "https://www.openwall.com/lists/oss-security/2020/11/20/4/1";
       sha256 = "077n2p165504nz9di6n8y5421591r3lsbcxgih8z26l6mvkhcs2h";
     })
+    # this adds additional functionality to musl's ftw routines. upstream is
+    # open to the idea but has not spent time evaluating their usefulness:
+    # https://www.openwall.com/lists/musl/2019/11/08/6
+    ./musl-nftw-actionretval.patch
   ];
   CFLAGS = [ "-fstack-protector-strong" ]
     ++ lib.optional stdenv.hostPlatform.isPower "-mlong-double-64";

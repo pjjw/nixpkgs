@@ -66,12 +66,13 @@
 , withHomed ? false
 , withHostnamed ? true
 , withHwdb ? true
+, withIdn ? !stdenv.hostPlatform.isMusl
 , withImportd ? true
 , withLocaled ? true
 , withLogind ? true
 , withMachined ? true
 , withNetworkd ? true
-, withNss ? true
+, withNss ? !stdenv.hostPlatform.isMusl
 , withOomd ? false
 , withPCRE2 ? true
 , withPolkit ? true
@@ -82,6 +83,7 @@
 , withTimedated ? true
 , withTimesyncd ? true
 , withUserDb ? true
+, withUtmp ? !stdenv.hostPlatform.isMusl
 , libfido2
 , p11-kit
 
@@ -149,6 +151,81 @@ stdenv.mkDerivation {
     ./0017-path-util.h-add-placeholder-for-DEFAULT_PATH_NORMAL.patch
     ./0018-logind-seat-debus-show-CanMultiSession-again.patch
     ./0019-Revert-pkg-config-prefix-is-not-really-configurable-.patch
+    # the below are a set of musl-enabling packages from openembeded.
+    # some of them (according to the author of musl-libc) are of
+    # spurious quality: https://www.openwall.com/lists/musl/2019/11/08/6
+    # however, they exist, and that seems a good starting point.
+    (fetchpatch {
+      name = "musl-0002-don-t-use-glibc-specific-qsort_r.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0002-don-t-use-glibc-specific-qsort_r.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-XwhNu7Imz2X7eyjnfS1GNM1pdZWQvMxIQHfuKoXhCJM=";
+    })
+    (fetchpatch {
+      # add missing typedefs for musl.
+      name = "musl-0003-missing_type.h-add-__compare_fn_t-and-comparison_fn_.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0003-missing_type.h-add-__compare_fn_t-and-comparison_fn_.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-tl0t3ed0UwpDCNgy8jSUvfPR73HQTwqemfpFxcEo8qM=";
+    })
+    (fetchpatch {
+      name = "musl-0004-add-fallback-parse_printf_format-implementation.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0004-add-fallback-parse_printf_format-implementation.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-xo/KDiLks1QbSqa1wb5IlDmhjJXyGH2LnBr+sBhH0JY=";
+    })
+    (fetchpatch {
+      name = "musl-0005-check-for-missing-stnrndupa.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0005-src-basic-missing.h-check-for-missing-strndupa.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-2OpfoakhXLb+AEBUezKhBL9KWxwG9+GWrZsTkD168BQ=";
+    })
+    (fetchpatch {
+      name = "musl-0006-Include-netinet-if_ether.h.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0006-Include-netinet-if_ether.h.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-hhFecpPUJMgtvPz6+gd/ijAopgWlVzIM03mglx7fe2w=";
+    })
+    (fetchpatch {
+      name = "musl-0007-don-t-fail-if-GLOB_BRACE-and-GLOB_ALTDIRFUNC-is-not-.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0007-don-t-fail-if-GLOB_BRACE-and-GLOB_ALTDIRFUNC-is-not-.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-Ol3P5WMCwmmKQlgyWSLq1EoItK/9pEA4W37VwM4o170=";
+    })
+    (fetchpatch {
+      name = "musl-0009-fix-missing-of-__register_atfork-for-non-glibc-build.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0009-fix-missing-of-__register_atfork-for-non-glibc-build.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-Hcw/LzvukASUcWaMRdyVsxn57B6hctWGAPpLziX8PTE=";
+    })
+    (fetchpatch {
+      name = "musl-0010-Use-uintmax_t-for-handling-rlim_t.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0010-Use-uintmax_t-for-handling-rlim_t.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-fRPqISIbRAOgwiDRzVR/GeS0GZ2dSL3wGvg9IffrP7w=";
+    })
+    (fetchpatch {
+      name = "musl-0013-Define-glibc-compatible-basename-for-non-glibc-syste.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0013-Define-glibc-compatible-basename-for-non-glibc-syste.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-9B1wleXJ9FDaYjIHVucnTkLVFIgRyvER36cqmTlxZBM=";
+    })
+    (fetchpatch {
+      name = "musl-0015-distinguish-XSI-compliant-strerror_r-from-GNU-specif.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0015-distinguish-XSI-compliant-strerror_r-from-GNU-specif.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-bhOXWzdA4NI/38tL3xc3W591pZlL80xXzx+iKZAe7Hw=";
+    })
+    (fetchpatch {
+      name = "musl-0017-missing_type.h-add-__compar_d_fn_t-definition.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0017-missing_type.h-add-__compar_d_fn_t-definition.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-SXG9xR2Xd6Xdb2USZsuirykmX37oi2SarinlD8Hiv0U=";
+    })
+    (fetchpatch {
+      name = "musl-0018-avoid-redefinition-of-prctl_mm_map-structure.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0018-avoid-redefinition-of-prctl_mm_map-structure.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-pFDWeIrMR1mEt9kt3KPpoJIBjN05d7xdJ4z6DNbJ8NA=";
+    })
+    (fetchpatch {
+      name = "musl-0020-Fix-incompatible-pointer-type-struct-sockaddr_un.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0020-Fix-incompatible-pointer-type-struct-sockaddr_un.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-/u7IvGB6I8+xz2k62l2cQbKIAdG1/Eeo8cro5QWiPCI=";
+    })
+    (fetchpatch {
+      name = "musl-0026-handle-missing-gshadow.patch";
+      url = "https://git.openembedded.org/openembedded-core/plain/meta/recipes-core/systemd/systemd/0026-Handle-missing-gshadow.patch?id=2e0259931f71701147039bb8e60251892f67dbcd";
+      sha256 = "sha256-MuVN1iODJycuRpKJL7hYxenvsIcDPf8cI3kdmKUhX+g=";
+    })
   ];
 
   postPatch = ''
@@ -341,8 +418,10 @@ stdenv.mkDerivation {
     "-Dresolve=${lib.boolToString withResolved}"
     "-Dsplit-usr=false"
     "-Dlibcurl=${lib.boolToString wantCurl}"
+    "-Dutmp=${lib.boolToString withUtmp}"
+    "-Didn=${lib.boolToString withIdn}"
     "-Dlibidn=false"
-    "-Dlibidn2=true"
+    "-Dlibidn2=${lib.boolToString withIdn}"
     "-Dquotacheck=false"
     "-Dldconfig=false"
     "-Dsmack=true"
@@ -392,6 +471,8 @@ stdenv.mkDerivation {
     "-Dnss-mymachines=false"
     "-Dnss-resolve=false"
     "-Dnss-systemd=false"
+  ] ++ lib.optionals (stdenv.hostPlatform.isMusl) [
+    "-Dgshadow=false" # pairs with musl-0026-handle-missing-gshadow.patch
   ];
 
   preConfigure = ''
@@ -452,7 +533,7 @@ stdenv.mkDerivation {
       --replace "SYSTEMD_CGROUP_AGENT_PATH" "_SYSTEMD_CGROUP_AGENT_PATH"
   '';
 
-  NIX_CFLAGS_COMPILE = toString [
+  NIX_CFLAGS_COMPILE = toString ([
     # Can't say ${polkit.bin}/bin/pkttyagent here because that would
     # lead to a cyclic dependency.
     "-UPOLKIT_AGENT_BINARY_PATH"
@@ -466,7 +547,13 @@ stdenv.mkDerivation {
 
     "-USYSTEMD_BINARY_PATH"
     "-DSYSTEMD_BINARY_PATH=\"/run/current-system/systemd/lib/systemd/systemd\""
-  ];
+  ] ++ lib.optionals stdenv.hostPlatform.isMusl [
+    # "-Wno-error"
+    # musl-libc throws warnings for any incorrect header locations; suppress.
+    "-Wno-cpp"
+    # paired with musl-0006-Include-netinet-if_ether.h.patch
+    "-D__UAPI_DEF_ETHHDR=0"
+  ]);
 
   doCheck = false; # fails a bunch of tests
 

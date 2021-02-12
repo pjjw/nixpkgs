@@ -3002,6 +3002,13 @@ in
     ceph-client;
   ceph-dev = ceph;
 
+  inherit (callPackages ../tools/filesystems/ceph/14.nix {
+    boost = boost172.override { enablePython = true; python = python38; };
+  })
+    ceph-14
+    ceph-client-14;
+  ceph-dev-14 = ceph-14;
+
   inherit (callPackages ../tools/security/certmgr { })
     certmgr certmgr-selfsigned;
 

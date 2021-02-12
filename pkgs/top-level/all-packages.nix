@@ -3069,13 +3069,26 @@ in
 
   nrg2iso = callPackage ../tools/cd-dvd/nrg2iso { };
 
-  libceph = ceph.lib;
-  inherit (callPackages ../tools/filesystems/ceph {
+  inherit (callPackages ../tools/filesystems/ceph/15.nix {
     boost = boost172.override { enablePython = true; python = python38; };
   })
-    ceph
-    ceph-client;
-  ceph-dev = ceph;
+    ceph-15
+    ceph-client-15;
+  ceph-dev-15 = ceph-15;
+  libceph-15 = ceph-15.lib;
+
+  inherit (callPackages ../tools/filesystems/ceph/14.nix {
+    boost = boost172.override { enablePython = true; python = python38; };
+  })
+    ceph-14
+    ceph-client-14;
+  ceph-dev-14 = ceph-14;
+  libceph-14 = ceph-14.lib;
+
+  ceph-dev = ceph-dev-14;
+  ceph = ceph-14;
+  ceph-client = ceph-client-14;
+  libceph = libceph-14;
 
   inherit (callPackages ../tools/security/certmgr { })
     certmgr certmgr-selfsigned;

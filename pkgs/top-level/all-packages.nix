@@ -3069,26 +3069,13 @@ in
 
   nrg2iso = callPackage ../tools/cd-dvd/nrg2iso { };
 
-  inherit (callPackages ../tools/filesystems/ceph/15.nix {
+  libceph = ceph.lib;
+  inherit (callPackages ../tools/filesystems/ceph {
     boost = boost172.override { enablePython = true; python = python38; };
   })
-    ceph-15
-    ceph-client-15;
-  ceph-dev-15 = ceph-15;
-  libceph-15 = ceph-15.lib;
-
-  inherit (callPackages ../tools/filesystems/ceph/14.nix {
-    boost = boost172.override { enablePython = true; python = python38; };
-  })
-    ceph-14
-    ceph-client-14;
-  ceph-dev-14 = ceph-14;
-  libceph-14 = ceph-14.lib;
-
-  ceph-dev = ceph-dev-14;
-  ceph = ceph-14;
-  ceph-client = ceph-client-14;
-  libceph = libceph-14;
+    ceph
+    ceph-client;
+  ceph-dev = ceph;
 
   inherit (callPackages ../tools/security/certmgr { })
     certmgr certmgr-selfsigned;
@@ -8433,6 +8420,8 @@ in
 
   trezor-udev-rules = callPackage ../os-specific/linux/trezor-udev-rules {};
 
+  trezorctl = with python3Packages; toPythonApplication trezor;
+
   trezord = callPackage ../servers/trezord { };
 
   trezor_agent = with python3Packages; toPythonApplication trezor_agent;
@@ -8520,6 +8509,8 @@ in
   twilight = callPackage ../tools/graphics/twilight {
     libX11 = xorg.libX11;
   };
+
+  twitch-chat-downloader = python3Packages.callPackage ../applications/misc/twitch-chat-downloader { };
 
   twitterBootstrap = callPackage ../development/web/twitter-bootstrap {};
 
@@ -9257,6 +9248,8 @@ in
 
   zsh-autoenv = callPackage ../tools/misc/zsh-autoenv { };
 
+  zsh-autopair = callPackage ../shells/zsh/zsh-autopair { };
+
   zsh-bd = callPackage ../shells/zsh/zsh-bd { };
 
   zsh-git-prompt = callPackage ../shells/zsh/zsh-git-prompt { };
@@ -9270,6 +9263,8 @@ in
   zsh-nix-shell = callPackage ../shells/zsh/zsh-nix-shell { };
 
   zsh-syntax-highlighting = callPackage ../shells/zsh/zsh-syntax-highlighting { };
+
+  zsh-system-clipboard = callPackage ../shells/zsh/zsh-system-clipboard { };
 
   zsh-fast-syntax-highlighting = callPackage ../shells/zsh/zsh-fast-syntax-highlighting { };
 
@@ -18803,9 +18798,10 @@ in
 
   erofs-utils = callPackage ../os-specific/linux/erofs-utils { };
 
+  fscryptctl = callPackage ../os-specific/linux/fscryptctl { };
   # unstable until the first 1.x release
   fscrypt-experimental = callPackage ../os-specific/linux/fscrypt { };
-  fscryptctl-experimental = callPackage ../os-specific/linux/fscryptctl { };
+  fscryptctl-experimental = callPackage ../os-specific/linux/fscryptctl/legacy.nix { };
 
   fwupd = callPackage ../os-specific/linux/firmware/fwupd { };
 
@@ -20909,9 +20905,7 @@ in
 
   ttf-tw-moe = callPackage ../data/fonts/ttf-tw-moe { };
 
-  twemoji-color-font = callPackage ../data/fonts/twemoji-color-font {
-    inherit (nodePackages) svgo;
-  };
+  twemoji-color-font = callPackage ../data/fonts/twemoji-color-font { };
 
   twitter-color-emoji = callPackage ../data/fonts/twitter-color-emoji { };
 
@@ -26019,6 +26013,8 @@ in
   xfractint = callPackage ../applications/graphics/xfractint {};
 
   xineUI = callPackage ../applications/video/xine-ui { };
+
+  xlsxgrep = callPackage ../applications/search/xlsxgrep { };
 
   xmind = callPackage ../applications/misc/xmind { };
 

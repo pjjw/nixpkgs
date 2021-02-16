@@ -9,7 +9,7 @@
 , babeltrace, gperf
 , gtest
 , cunit, snappy
-, rocksdb, makeWrapper
+, makeWrapper
 , leveldb, oathToolkit
 , libnl, libcap_ng
 , rdkafka
@@ -83,17 +83,17 @@ let
      platforms = [ "x86_64-linux" "aarch64-linux" ];
    };
 
-  ceph-common = python3Packages.buildPythonPackage rec{
-    pname = "ceph-common";
-    inherit src version;
-
-    sourceRoot = "ceph-${version}/src/python-common";
-
-    checkInputs = [ python3Packages.pytest ];
-    propagatedBuildInputs = with python3Packages; [ pyyaml six ];
-
-    meta = getMeta "Ceph common module for code shared by manager modules";
-  };
+#  ceph-common = python3Packages.buildPythonPackage rec{
+#    pname = "ceph-common";
+#    inherit src version;
+#
+#    sourceRoot = "ceph-${version}/src/python-common";
+#
+#    checkInputs = [ python3Packages.pytest ];
+#    propagatedBuildInputs = with python3Packages; [ pyyaml six ];
+#
+#    meta = getMeta "Ceph common module for code shared by manager modules";
+#  };
 
   ceph-python-env = python3Packages.python.withPackages (ps: [
     ps.sphinx
@@ -103,7 +103,7 @@ let
     ps.virtualenv
     # Libraries needed by the python tools
     ps.Mako
-    ceph-common
+    # ceph-common
     ps.cherrypy
     ps.dateutil
     ps.jsonpatch
@@ -121,10 +121,10 @@ let
   ]);
   sitePackages = ceph-python-env.python.sitePackages;
 
-  version = "15.2.8";
+  version = "14.2.16";
   src = fetchurl {
     url = "http://download.ceph.com/tarballs/ceph-${version}.tar.gz";
-    sha256 = "1nmrras3g2zapcd06qr5m7y4zkymnr0r53jkpicjw2g4q7wfmib4";
+    sha256 = "sha256:0lmdri415hqczc9565s5m5568pnj97ipqxgnw6085kps0flwq5zh";
   };
 in rec {
   ceph = stdenv.mkDerivation {
@@ -132,8 +132,8 @@ in rec {
     inherit src version;
 
     patches = [
-      ./0000-fix-SPDK-build-env.patch
-      ./ceph-glibc-2-32-sigdescr_np.patch
+      ./0000-fix-SPDK-build-env-14.patch
+      ./ceph-glibc-2-32-sigdescr_np-14.patch
     ];
 
     nativeBuildInputs = [
@@ -146,7 +146,7 @@ in rec {
     buildInputs = cryptoLibsMap.${cryptoStr} ++ [
       boost ceph-python-env libxml2 optYasm optLibatomic_ops optLibs3
       malloc zlib openldap lttng-ust babeltrace gperf gtest cunit
-      snappy rocksdb lz4 oathToolkit leveldb libnl libcap_ng rdkafka
+      snappy lz4 oathToolkit leveldb libnl libcap_ng rdkafka
     ] ++ lib.optionals stdenv.isLinux [
       linuxHeaders util-linux libuuid udev keyutils optLibaio optLibxfs optZfs
       # ceph 14
@@ -176,7 +176,6 @@ in rec {
 
 
       "-DWITH_SYSTEM_BOOST=ON"
-      "-DWITH_SYSTEM_ROCKSDB=ON"
       "-DWITH_SYSTEM_GTEST=ON"
       "-DMGR_PYTHON_VERSION=${ceph-python-env.python.pythonVersion}"
       "-DWITH_SYSTEMD=OFF"

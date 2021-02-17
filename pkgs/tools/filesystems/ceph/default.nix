@@ -24,6 +24,7 @@
 , jemalloc ? null, gperftools ? null
 
 # Crypto Dependencies
+, cryptsetup
 , cryptopp ? null
 , nss ? null, nspr ? null
 
@@ -191,6 +192,7 @@ in rec {
       # Test that ceph-volume exists since the build system has a tendency to
       # silently drop it with misconfigurations.
       test -f $out/bin/ceph-volume
+      wrapProgram $out/bin/ceph-volume --prefix PATH : ${lib.makeBinPath [ cryptsetup ]}
     '';
 
     outputs = [ "out" "lib" "dev" "doc" "man" ];

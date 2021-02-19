@@ -24,9 +24,11 @@
 , jemalloc ? null, gperftools ? null
 
 # Crypto Dependencies
-, cryptsetup
 , cryptopp ? null
 , nss ? null, nspr ? null
+
+# ceph-volume utilities
+, parted, cryptsetup, lvm2
 
 # Linux Only Dependencies
 , linuxHeaders, util-linux, libuuid, udev, keyutils, rdma-core, rabbitmq-c
@@ -147,7 +149,7 @@ in rec {
     buildInputs = cryptoLibsMap.${cryptoStr} ++ [
       boost ceph-python-env libxml2 optYasm optLibatomic_ops optLibs3
       malloc zlib openldap lttng-ust babeltrace gperf gtest cunit
-      snappy lz4 oathToolkit leveldb libnl libcap_ng rdkafka
+      snappy lz4 oathToolkit leveldb libnl libcap_ng rdkafka cryptsetup
     ] ++ lib.optionals stdenv.isLinux [
       linuxHeaders util-linux libuuid udev keyutils optLibaio optLibxfs optZfs
       # ceph 14
@@ -186,14 +188,14 @@ in rec {
     ];
 
     postFixup = ''
+      wrapProgram $out/bin/ceph-volume --prefix PATH ":" "${lib.strings.makeBinPath [ cryptsetup lvm2 util-linux parted ]}:${placeholder "out"}/bin:$(toPythonPath ${ceph-python-env})"
       wrapPythonPrograms
       wrapProgram $out/bin/ceph-mgr --prefix PYTHONPATH ":" "$(toPythonPath ${placeholder "out"}):$(toPythonPath ${ceph-python-env})"
 
       # Test that ceph-volume exists since the build system has a tendency to
       # silently drop it with misconfigurations.
       test -f $out/bin/ceph-volume
-      wrapProgram $out/bin/ceph-volume --prefix PATH : ${lib.makeBinPath [ cryptsetup ]}
-    '';
+      '';
 
     outputs = [ "out" "lib" "dev" "doc" "man" ];
 
@@ -218,3 +220,4 @@ in rec {
       substituteInPlace $out/bin/.ceph-wrapped --replace ${ceph} $out
    '';
 }
+

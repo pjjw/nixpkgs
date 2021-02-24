@@ -174,6 +174,7 @@ in rec {
 
     cmakeFlags = [
       "-DWITH_PYTHON3=ON"
+      "-DWITH_LZ4=ON"
       "-DWITH_SYSTEM_ROCKSDB=OFF"
       "-DCMAKE_INSTALL_DATADIR=${placeholder "lib"}/lib"
 

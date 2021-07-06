@@ -13,9 +13,9 @@ stdenv.mkDerivation rec {
     sha256 = "0zpqgihn3yh3v51ynxwr8asqrijvs4gv686clwv7bm8sawr4kfw7";
   };
 
-  postAutoreconf = ''
-    substituteInPlace configure --replace "macx-g++" "macx-clang"
-  '';
+  # postAutoreconf = ''
+  #   substituteInPlace configure --replace "macx-g++" "macx-clang"
+  # '';
 
   nativeBuildInputs = [ pkg-config autoreconfHook ];
 

@@ -62,6 +62,10 @@ stdenv.mkDerivation rec {
       url = "${downloadsUrl}/${version}/ghc-${version}-x86_64-apple-darwin.tar.xz";
       sha256 = "1hngyq14l4f950hzhh2d204ca2gfc98pc9xdasxihzqd1jq75dzd";
     };
+    aarch64-darwin = {
+      url = "${downloadsUrl}/${version}/ghc-${version}-x86_64-apple-darwin.tar.xz";
+      sha256 = "1hngyq14l4f950hzhh2d204ca2gfc98pc9xdasxihzqd1jq75dzd";
+    };
   }.${stdenv.hostPlatform.system}
     or (throw "cannot bootstrap GHC on this platform"));
 
